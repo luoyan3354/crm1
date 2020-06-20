@@ -8,7 +8,7 @@
   
   <typeAliases>
   
-  <!--	<package name="com.xxx.domain"/>-->
+  	<package name="com.luoyan.crm.settings.domain"/>
   	
   
   </typeAliases>
@@ -28,9 +28,7 @@
  
   <mappers>
 
-      <!--<package name="com.bjpowernode.settings.dao"/>
-      <package name="com.bjpowernode.wordbench.dao"/>-->
-
+      <package name="com.luoyan.crm.settings.dao"/>
   </mappers>
 </configuration>
 
