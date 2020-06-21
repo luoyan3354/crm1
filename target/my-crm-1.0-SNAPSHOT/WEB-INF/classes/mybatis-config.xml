@@ -27,7 +27,7 @@
   
  
   <mappers>
-
+      <!--小xml注册到大xml里-->
       <package name="com.luoyan.crm.settings.dao"/>
   </mappers>
 </configuration>
