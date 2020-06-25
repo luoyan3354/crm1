@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
         String expireTime = user.getExpireTime();
         String currentTime = DateTimeUtil.getSysTime();
         if(expireTime.compareTo(currentTime)<0){
-            throw new LoginException("账号密码错误");
+            throw new LoginException("账号时间已过期");
         }
 
         //判断锁定状态
@@ -44,8 +44,13 @@ public class UserServiceImpl implements UserService {
 
         //判断ip地址
         String allowIp = user.getAllowIps();
-        if(allowIp!=null&&allowIp!=""){//如果数据库里的ip地址为空，也就是说不需要判断来访主机的ip
+        System.out.println("数据库里的ip是"+allowIp);
+        if("".equals(allowIp)){
+            System.out.println("数据库里的ip是空串"+allowIp);
+        }
+        if(allowIp!=null&&!("".equals(allowIp))){//如果数据库里的ip地址为空，也就是说不需要判断来访主机的ip
             if(!allowIp.contains(ip)){
+                System.out.println("进入了ip地址受限的地方");
                 throw new LoginException("ip地址受限");
             }
         }

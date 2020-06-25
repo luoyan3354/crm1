@@ -15,6 +15,17 @@
     <url-pattern>*.do</url-pattern>
   </filter-mapping>
 
+  <!--拦截试图越过登录步骤，访问之后的资源-->
+  <filter>
+    <filter-name>LoginFilter</filter-name>
+    <filter-class>com.luoyan.crm.web.filter.LoginFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>LoginFilter</filter-name>
+    <url-pattern>*.do</url-pattern>
+    <url-pattern>*.jsp</url-pattern>
+  </filter-mapping>
+
   <!--输入账号和密码后走的登录Controller-->
   <servlet>
     <servlet-name>UserController</servlet-name>
