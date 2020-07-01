@@ -35,11 +35,11 @@ public class PrintJson {
 		
 	}
 	
-	//将对象解析为json串
+	//将对象解析为json串，将对象数组解析成json数组串
 	public static void printJsonObj(HttpServletResponse response,Object obj){
 		
 		/*
-		 * 
+		 *
 		 * Person p
 		 * 	id name age
 		 * {"id":"?","name":"?","age":?}

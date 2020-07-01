@@ -7,8 +7,10 @@
   <properties resource="jdbc.properties"/>
   
   <typeAliases>
-  
-  	<package name="com.luoyan.crm.settings.domain"/>
+
+    <package name="com.luoyan.crm.settings.domain"/>
+    <package name="com.luoyan.crm.workbench.domain"/>
+
   	
   
   </typeAliases>
@@ -28,7 +30,9 @@
  
   <mappers>
       <!--小xml注册到大xml里-->
-      <package name="com.luoyan.crm.settings.dao"/>
+    <package name="com.luoyan.crm.settings.dao"/>
+    <package name="com.luoyan.crm.workbench.dao"/>
+
   </mappers>
 </configuration>
 

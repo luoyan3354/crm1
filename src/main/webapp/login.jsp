@@ -15,6 +15,12 @@
 	<script>
 		//页面加载完毕之后，开始执行下面这个$()
 		$(function () {
+
+			//如果登录窗口不是顶级窗口，则将窗口赋到顶级窗口。
+			if(window.top!=window){
+				window.top.location = window.location;
+			}
+
 			//1.将用户文本框中的内容清空
 			$("#loginAct").val("");
 
