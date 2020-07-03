@@ -118,7 +118,87 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 		//为查询按钮绑定事件，触发pageList()
 		$("#searchBtn").click(function () {
+
+			//将搜索框中的信息保存到隐藏域中
+			$("#hidden-name").val($.trim($("#search-name").val()));
+			$("#hidden-owner").val($.trim($("#search-owner").val()));
+			$("#hidden-startDate").val($.trim($("#search-startDate").val()));
+			$("#hidden-endDate").val($.trim($("#search-endDate").val()));
+
 			pageList(1,2);
+
+		})
+
+		//为全选的复选框绑定事件，触发全选操作（使小选框选中或取消）
+		$("#qx").click(function () {
+
+			$("input[name=xz]").prop("checked",this.checked);
+
+		})
+
+		/* 选中小的复选框，来决定全选框是否选中（有多少个小选框==有多少个已选中的小选框）    小选框代表的是所有的小选框
+		动态生成的元素，以on方法的形式来触发事件
+		语法：
+		    $(需要绑定元素的有效的外层元素）.on(绑定事件的方式，需要绑定的元素的jquery对象，回调函数）
+
+		*/
+		$("#activityBody").on("click",$("input[name=xz]"),function () {
+
+			$("#qx").prop("checked",$("input[name=xz]").length==$("input[name=xz]:checked").length);
+
+		})
+
+		//为删除按钮绑定事件，执行市场活动删除操作
+		$("#deleteBtn").click(function () {
+
+			//找到复选框中所有挑√的复选框的jquery对象
+			var $xz = $("input[name=xz]:checked");
+
+			if($xz.length==0){
+				alert("请选择需要删除的记录");
+
+			//用户选了。可能是1条，有可能是多条。
+			}else{
+
+				//温馨提示是否删除
+				if(confirm("确定删除所选中的记录吗")){
+					//拼接参数
+					var param = "";
+
+					//将$xz中的每一个dom对象遍历出来，取其value值。=>将要删除的id都拼接成串
+					for(var i=0;i<$xz.length;i++){
+
+						param += "id="+$($xz[i]).val();
+
+						//如果不是最后一个元素，需要在后面追加一个&符
+						if(i<$xz.length-1){
+							param += "&";
+						}
+					}
+
+					//发请求，携参为上面的param
+					$.ajax({
+						url:"workbench/activity/delete.do",
+						data:param,//前端传给后台的参数
+						type:"post",
+						dataType:"json",
+						success:function (data) {
+							/*
+                            data: {"success":true/false}
+                            */
+							if(data.success){
+								pageList(1,2);
+							}else{
+								alert("删除市场活动失败");
+							}
+
+						}
+					})
+				}
+
+
+
+			}
 
 		})
 		
@@ -127,6 +207,16 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 	//pageNo:页码（第几页）  pageSize:每页展示的记录数
 	function pageList(pageNo,pageSize) {
 		//alert("展示市场活动列表");
+
+		//将全选的√去掉
+		$("#qx").prop("checked",false);
+
+		//查询前，将隐藏域中保存的信息取出来，重新赋予到搜索框中
+		$("#search-name").val($.trim($("#hidden-name").val()));
+		$("#search-owner").val($.trim($("#hidden-owner").val()));
+		$("#search-startDate").val($.trim($("#hidden-startDate").val()));
+		$("#search-endDate").val($.trim($("#hidden-endDate").val()));
+
 		$.ajax({
 			url:"workbench/activity/pageList.do",
 			data:{//前端传给后台的参数
@@ -153,7 +243,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				$.each(data.dataList,function (i,n) {
 
 					html += '<tr class="active">';
-					html += '<td><input type="checkbox" value="'+n.id+'"/></td>';
+					html += '<td><input type="checkbox" name="xz" value="'+n.id+'"/></td>';
 					html += '<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href=\'workbench/activity/detail.jsp\';">'+n.name+'</a></td>';
 					html += '<td>'+n.owner+'</td>';
 					html += '<td>'+n.startDate+'</td>';
@@ -197,6 +287,11 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 </script>
 </head>
 <body>
+
+	<input type="hidden" id="hidden-name"/>
+	<input type="hidden" id="hidden-owner"/>
+	<input type="hidden" id="hidden-startDate"/>
+	<input type="hidden" id="hidden-endDate"/>
 
 	<!-- 创建市场活动的模态窗口 -->
 	<div class="modal fade" id="createActivityModal" role="dialog">
@@ -358,13 +453,13 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				    </div>
 				  </div>
 
-
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">开始日期</div>
 					  <input class="form-control" type="text" id="search-startDate" />
 				    </div>
 				  </div>
+
 				  <div class="form-group">
 				    <div class="input-group">
 				      <div class="input-group-addon">结束日期</div>
@@ -380,7 +475,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				<div class="btn-group" style="position: relative; top: 18%;">
 				  <button type="button" class="btn btn-primary" id="addBtn"><span class="glyphicon glyphicon-plus"></span> 创建</button>
 				  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#editActivityModal"><span class="glyphicon glyphicon-pencil"></span> 修改</button>
-				  <button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
+				  <button type="button" class="btn btn-danger" id="deleteBtn"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 				</div>
 				
 			</div>
@@ -388,7 +483,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				<table class="table table-hover">
 					<thead>
 						<tr style="color: #B3B3B3;">
-							<td><input type="checkbox" /></td>
+							<td><input type="checkbox" id="qx"/></td>
 							<td>名称</td>
                             <td>所有者</td>
 							<td>开始日期</td>
