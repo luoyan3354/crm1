@@ -36,7 +36,64 @@ public class ActivityController extends HttpServlet {
             pageList(request,response);
         }else if("/workbench/activity/delete.do".equals(path)){
             delete(request,response);
+        }else if("/workbench/activity/getUserListAndActivity.do".equals(path)){
+            getUserListAndActivity(request,response);
+        }else if("/workbench/activity/update.do".equals(path)){
+            update(request,response);
         }
+
+    }
+
+    private void update(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("进入修改市场活动controller");
+
+        //从前端传递过来的参数获取数据
+        String id = request.getParameter("id");
+        String owner = request.getParameter("owner");
+        String name = request.getParameter("name");
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+        String cost = request.getParameter("cost");
+        String description = request.getParameter("description");
+        //修改时间：当前系统时间
+        String editTime = DateTimeUtil.getSysTime();
+        //修改人：当前登录用户
+        String editBy = ((User)request.getSession().getAttribute("user")).getName();
+
+        Activity a = new Activity();
+        a.setId(id);
+        a.setOwner(owner);
+        a.setName(name);
+        a.setStartDate(startDate);
+        a.setEndDate(endDate);
+        a.setCost(cost);
+        a.setDescription(description);
+        a.setEditTime(editTime);
+        a.setEditBy(editBy);
+
+        ActivityService as = (ActivityService)ServiceFactory.getService(new ActivityServiceImpl());
+        boolean flag = as.update(a);
+        PrintJson.printJsonFlag(response,flag);
+
+
+    }
+
+    private void getUserListAndActivity(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("进入修改市场活动之前铺值的controller");
+
+        String id = request.getParameter("id");
+
+        ActivityService as = (ActivityService) ServiceFactory.getService(new ActivityServiceImpl());
+
+        /*前端需要什么，controller就返回什么，但是返回的形式由controller决定
+          装一个的List集合类型的uList，单条对象的a
+          =>使用map打包
+         */
+        Map<String,Object> map = as.getUserListAndActivity(id);
+
+        PrintJson.printJsonObj(response,map);
 
     }
 
@@ -110,6 +167,8 @@ public class ActivityController extends HttpServlet {
         a.setEndDate(endDate);
         a.setCost(cost);
         a.setDescription(description);
+        a.setCreateTime(createTime);
+        a.setCreateBy(createBy);
 
         ActivityService as = (ActivityService)ServiceFactory.getService(new ActivityServiceImpl());
         boolean flag = as.save(a);

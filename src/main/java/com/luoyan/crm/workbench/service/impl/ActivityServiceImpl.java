@@ -1,5 +1,7 @@
 package com.luoyan.crm.workbench.service.impl;
 
+import com.luoyan.crm.settings.dao.UserDao;
+import com.luoyan.crm.settings.domain.User;
 import com.luoyan.crm.utils.SqlSessionUtil;
 import com.luoyan.crm.vo.PaginationVO;
 import com.luoyan.crm.workbench.dao.ActivityDao;
@@ -7,6 +9,8 @@ import com.luoyan.crm.workbench.dao.ActivityRemarkDao;
 import com.luoyan.crm.workbench.domain.Activity;
 import com.luoyan.crm.workbench.service.ActivityService;
 
+import java.sql.SQLOutput;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,6 +18,7 @@ public class ActivityServiceImpl implements ActivityService {
 
     private ActivityDao activityDao = SqlSessionUtil.getSqlSession().getMapper(ActivityDao.class);
     private ActivityRemarkDao activityRemarkDao = SqlSessionUtil.getSqlSession().getMapper(ActivityRemarkDao.class);
+    private UserDao userDao = SqlSessionUtil.getSqlSession().getMapper(UserDao.class);
 
     @Override
     public boolean save(Activity a) {
@@ -72,5 +77,35 @@ public class ActivityServiceImpl implements ActivityService {
 
         return flag;
 
+    }
+
+    @Override
+    public Map<String, Object> getUserListAndActivity(String id) {
+
+        //取uList
+        List<User> uList = userDao.getUserList();
+
+        //取a
+        Activity a = activityDao.getById(id);
+
+        //将uList和a打包到map中
+        Map<String,Object> map = new HashMap<String,Object>();
+        map.put("uList",uList);
+        map.put("a",a);
+
+        //返回map
+        return map;
+    }
+
+    @Override
+    public boolean update(Activity a) {
+        boolean flag = true;
+
+        int count = activityDao.update(a);
+        if(count!=1){
+            flag = false;
+        }
+
+        return flag;
     }
 }

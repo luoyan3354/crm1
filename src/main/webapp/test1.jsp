@@ -11,7 +11,9 @@
 123
 $.ajax({
 url:"",
-data:{},//前端传给后台的参数
+data:{//前端传给后台的参数
+
+},
 type:"",
 dataType:"json",
 success:function (data) {
