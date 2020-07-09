@@ -9,6 +9,7 @@ import com.luoyan.crm.utils.ServiceFactory;
 import com.luoyan.crm.utils.UUIDUtil;
 import com.luoyan.crm.vo.PaginationVO;
 import com.luoyan.crm.workbench.domain.Activity;
+import com.luoyan.crm.workbench.domain.ActivityRemark;
 import com.luoyan.crm.workbench.service.ActivityService;
 import com.luoyan.crm.workbench.service.impl.ActivityServiceImpl;
 
@@ -40,7 +41,48 @@ public class ActivityController extends HttpServlet {
             getUserListAndActivity(request,response);
         }else if("/workbench/activity/update.do".equals(path)){
             update(request,response);
+        }else if("/workbench/activity/detail.do".equals(path)){
+            detail(request,response);
+        }else if("/workbench/activity/getRemarkListByAid.do".equals(path)){
+            getRemarkListByAid(request,response);
+        }else if("/workbench/activity/deleteRemark.do".equals(path)){
+            deleteRemark(request,response);
         }
+
+    }
+
+    private void deleteRemark(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("删除市场活动的备注信息表controller");
+        String id = request.getParameter("id");
+        ActivityService as = (ActivityService)ServiceFactory.getService(new ActivityServiceImpl());
+        boolean flag = as.deleteRemark(id);
+        PrintJson.printJsonFlag(response,flag);
+
+    }
+
+    private void getRemarkListByAid(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("根据市场活动id，获取市场活动的备注信息表controller");
+
+        String activityId = request.getParameter("activityId");
+        ActivityService as = (ActivityService)ServiceFactory.getService(new ActivityServiceImpl());
+        List<ActivityRemark> arList = as.getRemarkListByAid(activityId);
+        PrintJson.printJsonObj(response,arList);
+
+    }
+
+    private void detail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+
+        System.out.println("进入市场活动详情页");
+
+        String id = request.getParameter("id");
+        System.out.println(id);
+        ActivityService as = (ActivityService)ServiceFactory.getService(new ActivityServiceImpl());
+        Activity a = as.detail(id);
+
+        request.setAttribute("a",a);
+        request.getRequestDispatcher("/workbench/activity/detail.jsp").forward(request,response);
 
     }
 

@@ -7,6 +7,7 @@ import com.luoyan.crm.vo.PaginationVO;
 import com.luoyan.crm.workbench.dao.ActivityDao;
 import com.luoyan.crm.workbench.dao.ActivityRemarkDao;
 import com.luoyan.crm.workbench.domain.Activity;
+import com.luoyan.crm.workbench.domain.ActivityRemark;
 import com.luoyan.crm.workbench.service.ActivityService;
 
 import java.sql.SQLOutput;
@@ -105,6 +106,33 @@ public class ActivityServiceImpl implements ActivityService {
         if(count!=1){
             flag = false;
         }
+
+        return flag;
+    }
+
+    @Override
+    public Activity detail(String id) {
+        Activity a = activityDao.detail(id);
+        return a;
+    }
+
+    @Override
+    public List<ActivityRemark> getRemarkListByAid(String activityId) {
+        List<ActivityRemark> arList = activityRemarkDao.getRemarkListByAid(activityId);
+        return arList;
+    }
+
+    @Override
+    public boolean deleteRemark(String id) {
+
+        boolean flag = true;
+        int count = activityRemarkDao.deleteById(id);
+
+        if(count!=1){
+            flag = false;
+        }
+
+        //System.out.println("返回的flag是"+flag);
 
         return flag;
     }
