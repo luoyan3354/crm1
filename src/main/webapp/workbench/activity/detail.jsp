@@ -63,8 +63,100 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
             $(this).children("div").children("div").hide();
         })
 
+        //为保存按钮绑定事件，执行备注添加操作
+        $("#saveRemarkBtn").click(function () {
+
+            $.ajax({
+                url:"workbench/activity/saveRemark.do",
+                data:{//前端传给后台的参数
+
+                    "noteContent": $.trim($("#remark").val()),
+                    "activityId": "${a.id}"
+
+                },
+                type:"post",
+                dataType:"json",
+                success:function (data) {
+
+                    /*data
+                        {"success":ture/false,"ar":{备注}}
+                     */
+                    if(data.success){
+
+                        //添加成功
+
+                        //将textarea文本域中的信息清空掉
+                        $("#remark").val("");
+
+                        var html = "";
+
+                        html += '<div id="'+data.ar.id+'" class="remarkDiv" style="height: 60px;">';
+                        html += '<img title="zhangsan" src="image/user-thumbnail.png" style="width: 30px; height:30px;">';
+                        html += '<div style="position: relative; top: -40px; left: 40px;" >';
+                        html += '<h5>'+data.ar.noteContent+'</h5>';
+                        html += '<font color="gray">市场活动</font> <font color="gray">-</font> <b>${data.ar.name}</b> <small style="color: gray;"> '+(data.ar.editFlag==0?data.ar.createTime:data.ar.editTime)+' 由'+(data.ar.editFlag==0?data.ar.createBy:data.ar.editBy)+'</small>';
+                        html += '<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">';
+                        html += '<a class="myHref" href="javascript:void(0);" ><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #FF0000;"></span></a>';
+                        html += '&nbsp;&nbsp;&nbsp;&nbsp;';
+                        html += '<a class="myHref" href="javascript:void(0);" onclick="deleteRemark(\''+data.ar.id+'\')"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #FF0000;"></span></a>';
+                        html += '</div>';
+                        html += '</div>';
+                        html += '</div>';
+
+                        $("#remarkDiv").before(html);
+
+                    }else{
+                        alert("添加备注失败");
+                    }
+
+                }
+            })
+
+        })
+        
+        //为更新按钮绑定事件
+        $("#updateRemarkBtn").click(function () {
+
+            var id = $("#remarkId").val();
+
+            $.ajax({
+                url:"workbench/activity/updateRemark.do",
+                data:{//前端传给后台的参数
+                    "id":id,
+                    "noteContent": $.trim($("#noteContent").val())
+                },
+                type:"post",
+                dataType:"json",
+                success:function (data) {
+
+                    /*
+                    data:  {"success":true/false,"ar":{备注}}
+
+                     */
+                    if(data.success){
+
+                        //修改备注成功  =>前端页面这条备注要修改的地方：noteContent、editTime、editBy
+                        //直接在整个html页面上改，找到这条id，赋值。
+                        $("#e"+id).html(data.ar.noteContent);
+                        $("#s"+id).html(data.ar.editTime+" 由"+data.ar.editBy);
+
+                        //更新内容成功之后，关闭模态窗口
+                        $("#editRemarkModal").modal("hide");
+
+                    }else{
+
+                        //修改备注失败
+                        alert("修改备注失败");
+
+                    }
+                }
+            })
+
+        })
+
 	});
 
+	//一进入，就显示备注信息列表
 	function showRemarkList() {
 
 		$.ajax({
@@ -89,10 +181,10 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 					html += '<div id="'+n.id+'" class="remarkDiv" style="height: 60px;">';
 					html += '<img title="zhangsan" src="image/user-thumbnail.png" style="width: 30px; height:30px;">';
 					html += '<div style="position: relative; top: -40px; left: 40px;" >';
-					html += '<h5>'+n.noteContent+'</h5>';
-					html += '<font color="gray">市场活动</font> <font color="gray">-</font> <b>${a.name}</b> <small style="color: gray;"> '+(n.editFlag==0?n.createTime:n.editTime)+' 由'+(n.editFlag==0?n.createBy:n.editBy)+'</small>';
+					html += '<h5 id="e'+n.id+'">'+n.noteContent+'</h5>';
+					html += '<font color="gray">市场活动</font> <font color="gray">-</font> <b>${a.name}</b> <small style="color: gray;" id="s'+n.id+'"> '+(n.editFlag==0?n.createTime:n.editTime)+' 由'+(n.editFlag==0?n.createBy:n.editBy)+'</small>';
 					html += '<div style="position: relative; left: 500px; top: -30px; height: 30px; width: 100px; display: none;">';
-					html += '<a class="myHref" href="javascript:void(0);"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #FF0000;"></span></a>';
+					html += '<a class="myHref" href="javascript:void(0);" onclick="editRemark(\''+n.id+'\')"><span class="glyphicon glyphicon-edit" style="font-size: 20px; color: #FF0000;"></span></a>';
 					html += '&nbsp;&nbsp;&nbsp;&nbsp;';
 				    html += '<a class="myHref" href="javascript:void(0);" onclick="deleteRemark(\''+n.id+'\')"><span class="glyphicon glyphicon-remove" style="font-size: 20px; color: #FF0000;"></span></a>';
 					html += '</div>';
@@ -108,6 +200,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 	}
 
+	//在显示的基础上，删除备注
 	function deleteRemark(id) {
         //删除键传id：因为是动态拼接，所以参数规定要以字符串的形式。因为最外侧也是单引号，所以要转义。再正常地拼串"++"
 	    //alert(id);
@@ -134,6 +227,25 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
             }
         })
+
+    }
+
+    //修改前铺值，打开修改备注的模态窗口 =>铺值的来源是来自于前端已经显示的备注列表信息
+    function editRemark(id) {
+
+	    //alert(id);
+
+	    //将模态窗口中，隐藏域中的id进行赋值
+        $("#remarkId").val(id);
+
+        //找到存放备注信息的h5标签
+        var noteContent = $("#e"+id).html();
+
+        //将h5展现出来的信息，赋予到修改模态窗口的文本域中
+        $("#noteContent").val(noteContent);
+
+        //以上信息处理完毕后，将修改备注的模态窗口打开
+        $("#editRemarkModal").modal("show");
 
     }
 	
@@ -337,7 +449,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				<textarea id="remark" class="form-control" style="width: 850px; resize : none;" rows="2"  placeholder="添加备注..."></textarea>
 				<p id="cancelAndSaveBtn" style="position: relative;left: 737px; top: 10px; display: none;">
 					<button id="cancelBtn" type="button" class="btn btn-default">取消</button>
-					<button type="button" class="btn btn-primary">保存</button>
+					<button type="button" class="btn btn-primary" id="saveRemarkBtn">保存</button>
 				</p>
 			</form>
 		</div>
