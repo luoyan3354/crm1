@@ -66,6 +66,54 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			})
 
 		})
+
+		//为保存按钮绑定事件，执行线索添加操作
+		$("#saveBtn").click(function () {
+
+			$.ajax({
+				url:"workbench/clue/save.do",
+				data:{//前端传给后台的参数
+
+					"fullname" : $.trim($("#create-fullname").val()),
+					"appellation" : $.trim($("#create-appellation").val()),
+					"owner" : $.trim($("#create-owner").val()),
+					"company" : $.trim($("#create-company").val()),
+					"job" : $.trim($("#create-job").val()),
+					"email" : $.trim($("#create-email").val()),
+					"phone" : $.trim($("#create-phone").val()),
+					"website" : $.trim($("#create-website").val()),
+					"mphone" : $.trim($("#create-mphone").val()),
+					"state" : $.trim($("#create-state").val()),
+					"source" : $.trim($("#create-source").val()),
+					"description" : $.trim($("#create-description").val()),
+					"contactSummary" : $.trim($("#create-contactSummary").val()),
+					"nextContactTime" : $.trim($("#create-nextContactTime").val()),
+					"address" : $.trim($("#create-address").val())
+
+				},
+				type:"post",
+				dataType:"json",
+				success:function (data) {
+					/*
+					data
+						{"success":true/false}
+					 */
+
+					if(data.success){
+
+						//刷新列表 略
+
+						//关闭模态窗口
+						$("#createClueModal").modal("hide");
+
+					}else{
+						alert("添加线索失败")
+					}
+
+				}
+			})
+
+		})
 		
 	});
 	
@@ -205,7 +253,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">保存</button>
+					<button type="button" class="btn btn-primary" id="saveBtn">保存</button>
 				</div>
 			</div>
 		</div>
@@ -493,7 +541,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 					<tbody>
 						<tr>
 							<td><input type="checkbox" /></td>
-							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='workbench/clue/detail.jsp';">李四先生</a></td>
+							<td><a style="text-decoration: none; cursor: pointer;" onclick="window.location.href='workbench/clue/detail.do?id=13e45839b7594921b2aa8fa17eaad3c6';">马云先生（detail.jsp死的数据）</a></td>
 							<td>动力节点</td>
 							<td>010-84846003</td>
 							<td>12345678901</td>
