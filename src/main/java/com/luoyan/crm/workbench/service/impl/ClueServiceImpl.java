@@ -1,6 +1,7 @@
 package com.luoyan.crm.workbench.service.impl;
 
 import com.luoyan.crm.utils.SqlSessionUtil;
+import com.luoyan.crm.utils.UUIDUtil;
 import com.luoyan.crm.workbench.dao.ClueActivityRelationDao;
 import com.luoyan.crm.workbench.dao.ClueDao;
 import com.luoyan.crm.workbench.domain.Clue;
@@ -40,6 +41,30 @@ public class ClueServiceImpl implements ClueService {
         int count = clueActivityRelationDao.unbund(id);
 
         if(count!=1) flag=false;
+
+        return flag;
+    }
+
+    @Override
+    public boolean bund(String cid, String[] aids) {
+
+        boolean flag = true;
+
+        for(String aid:aids){
+
+            //取得每一个aid和cid做关联
+            ClueActivityRelation car = new ClueActivityRelation();
+            car.setId(UUIDUtil.getUUID());
+            car.setClueId(cid);
+            car.setActivityId(aid);
+
+            //添加关联关系表中的记录
+            int count = clueActivityRelationDao.bund(car);
+            if(count!=1){
+                flag = false;
+            }
+
+        }
 
         return flag;
     }

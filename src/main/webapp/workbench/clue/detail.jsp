@@ -52,7 +52,123 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			$(this).children("span").css("color","#E6E6E6");
 		});
 
+		//页面加载完毕后，取出关联的市场活动信息列表
 		showActivityList();
+
+		//为关联市场活动模态窗口中的 搜索框 绑定事件，通过触发回车键，实现模糊查询，展现想要关联的市场活动列表
+		//参数1：模糊查询的name	参数2：除掉已经关联过的
+		$("#aname").keydown(function (event) {
+
+			//如果是回车键
+			if(event.keyCode==13) {
+
+				//alert("查询并展现市场活动列表");
+				$.ajax({
+					url:"workbench/clue/getActivityListByNameAndNotByClueId.do",
+					data:{//前端传给后台的参数
+
+						"aname" : $.trim($("#aname").val()),
+						"clueId" : "${c.id}"
+					},
+					type:"get",
+					dataType:"json",
+					success:function (data) {
+
+						/*
+						data
+							[{市场活动1},{2},{3}...]
+						 */
+
+						var html = "";
+
+						$.each(data,function (i,n) {
+
+						    html += '<tr>';
+							html += '<td><input type="checkbox" name="xz" value="'+n.id+'"/></td>';
+							html += '<td>'+n.name+'</td>';
+							html += '<td>'+n.startDate+'</td>';
+							html += '<td>'+n.endDate+'</td>';
+							html += '<td>'+n.owner+'</td>';
+							html += '</tr>';
+
+						})
+
+						$("#activitySearchBody").html(html);
+
+					}
+				})
+
+				//将模态窗口默认的回车行为（当前页面强制刷新，数据清空）=>禁用
+				return false;
+
+			}
+
+		})
+
+		//为关联按钮绑定事件，执行关联表的添加操作
+		$("#bundBtn").click(function () {
+
+			var $xz = $("input[name=xz]:checked");
+
+			if($xz.length==0){
+
+				alert("请选择需要关联的市场活动");
+
+			//1条或者多条
+			}else{
+
+				//传统的请求方式是这样。才允许一个key有多个值。但是以ajax的方式直接，一个key只能一个值。=>拼串。
+				//workbench/clue/bund.do?cid=xxx&aid=xxx&aid=xxx&aid=xxx
+
+				var param = "cid=${c.id}&";
+
+				for(var i=0;i<$xz.length;i++){
+
+					param += "aid="+$($xz[i]).val();
+
+					//只要不是最后一个，就要在后面追加一个&
+					if(i<$xz.length-1){
+						param += "&";
+					}
+
+				}
+
+				//alert(param);
+
+				$.ajax({
+					url:"workbench/clue/bund.do",
+					data:param,
+					type:"post",
+					dataType:"json",
+					success:function (data) {
+
+						/*
+						data
+							{"success":true/false}
+						 */
+						if(data.success){
+
+							//关联成功
+							//刷新关联市场活动的列表
+							showActivityList();
+
+							//清除搜索框中的信息  复选框中的√干掉  清空activitySearchBody中的内容
+							//（个人我认为上述操作，可以在再重新点开关联市场活动按钮的时候进行。
+
+							//关闭模态窗口
+							$("#bundModal").modal("hide");
+
+						}else{
+							alert("关联市场活动失败");
+						}
+
+					}
+				})
+
+			}
+
+
+		})
 
 	});
 
@@ -146,7 +262,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 					<div class="btn-group" style="position: relative; top: 18%; left: 8px;">
 						<form class="form-inline" role="form">
 						  <div class="form-group has-feedback">
-						    <input type="text" class="form-control" style="width: 300px;" placeholder="请输入市场活动名称，支持模糊查询">
+						    <input type="text" class="form-control" style="width: 300px;" id="aname" placeholder="123请输入市场活动名称，支持模糊查询">
 						    <span class="glyphicon glyphicon-search form-control-feedback"></span>
 						  </div>
 						</form>
@@ -162,8 +278,8 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 								<td></td>
 							</tr>
 						</thead>
-						<tbody>
-							<tr>
+						<tbody id="activitySearchBody">
+							<%--<tr>
 								<td><input type="checkbox"/></td>
 								<td>发传单</td>
 								<td>2020-10-10</td>
@@ -176,13 +292,13 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 								<td>2020-10-10</td>
 								<td>2020-10-20</td>
 								<td>zhangsan</td>
-							</tr>
+							</tr>--%>
 						</tbody>
 					</table>
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
-					<button type="button" class="btn btn-primary" data-dismiss="modal">关联</button>
+					<button type="button" class="btn btn-primary" id="bundBtn">关联</button>
 				</div>
 			</div>
 		</div>
@@ -355,7 +471,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			<h3>${c.fullname}${c.appellation} <small>${c.company}</small></h3>
 		</div>
 		<div style="position: relative; height: 50px; width: 500px;  top: -72px; left: 700px;">
-			<button type="button" class="btn btn-default" onclick="window.location.href='workbench/clue/convert.jsp';"><span class="glyphicon glyphicon-retweet"></span> 转换</button>
+			<button type="button" class="btn btn-default" onclick="window.location.href='workbench/clue/convert.jsp?id=${c.id}&fullname=${c.fullname}&appellation=${c.appellation}&company=${c.company}&owner=${c.owner}';"><span class="glyphicon glyphicon-retweet"></span> 转换</button>
 			<button type="button" class="btn btn-default" data-toggle="modal" data-target="#editClueModal"><span class="glyphicon glyphicon-edit"></span> 编辑</button>
 			<button type="button" class="btn btn-danger"><span class="glyphicon glyphicon-minus"></span> 删除</button>
 		</div>
