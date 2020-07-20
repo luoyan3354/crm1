@@ -26,5 +26,18 @@ String createTime = DateTimeUtil.getSysTime();
 //创建人：当前登录用户
 String createBy = ((User)request.getSession().getAttribute("user")).getName();
 
+//日期控件
+$(".time").datetimepicker({
+minView: "month",
+language: 'zh-CN',
+format: 'yyyy-mm-dd',
+autoclose: true,
+todayBtn: true,
+pickerPosition: "bottom-left"
+});
+
+//点击直接就打开模态窗口
+data-toggle="modal" data-target="#searchActivityModal"
+
 </body>
 </html>
