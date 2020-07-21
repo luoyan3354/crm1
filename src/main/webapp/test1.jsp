@@ -21,10 +21,10 @@ success:function (data) {
 }
 })
 
-//创建时间：当前系统时间
-String createTime = DateTimeUtil.getSysTime();
 //创建人：当前登录用户
+//创建时间：当前系统时间
 String createBy = ((User)request.getSession().getAttribute("user")).getName();
+String createTime = DateTimeUtil.getSysTime();
 
 //日期控件
 $(".time").datetimepicker({

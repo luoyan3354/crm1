@@ -139,9 +139,20 @@ String owner = request.getParameter("owner");
 
 			 */
 
-			if($("#isCreateTransaction").prop("checked")){
+			if($("#isCreateTransaction").prop("checked")) {
 
-				alert("需要创建交易");
+				//alert("需要创建交易");
+				/*
+					除了要为后台传递clueId之外，还得为后台传递交易表单中的信息
+					在路径后面挂载会很麻烦，挂载的参数有可能超出浏览器地址栏的上限
+
+					=>使用提交表单的形式来发出本次的传统请求
+						优点：参数不用我们手动挂载（表单中写name属性）；
+							  提交表单能够提交post请求（保密性和字数限制都不存在问题）
+				 */
+
+				//提交表单
+				$("#tranForm").submit();
 
 			}else{
 
@@ -229,22 +240,28 @@ String owner = request.getParameter("owner");
 	</div>
 	<div id="create-transaction2" style="position: relative; left: 40px; top: 20px; width: 80%; background-color: #F7F7F7; display: none;" >
 	
-		<form>
+		<form id="tranForm" action="workbench/clue/convert.do" method="post">
+
+			<%--作为标记是否有交易（后台根据接收的flag是否是a来判断）--%>
+			<input type="hidden" name="flag" value="a">
+
+			<input type="hidden" name="clueId" value="${param.id}"/>
+
 		  <div class="form-group" style="width: 400px; position: relative; left: 20px;">
 		    <label for="amountOfMoney">金额</label>
-		    <input type="text" class="form-control" id="amountOfMoney">
+		    <input type="text" class="form-control" id="amountOfMoney" name="money">
 		  </div>
 		  <div class="form-group" style="width: 400px;position: relative; left: 20px;">
 		    <label for="tradeName">交易名称</label>
-		    <input type="text" class="form-control" id="tradeName" value="动力节点-">
+		    <input type="text" class="form-control" id="tradeName" name="name">
 		  </div>
 		  <div class="form-group" style="width: 400px;position: relative; left: 20px;">
 		    <label for="expectedClosingDate">预计成交日期</label>
-		    <input type="text" class="form-control time" id="expectedClosingDate">
+		    <input type="text" class="form-control time" id="expectedClosingDate" name="expectedDate">
 		  </div>
 		  <div class="form-group" style="width: 400px;position: relative; left: 20px;">
 		    <label for="stage">阶段</label>
-		    <select id="stage"  class="form-control">
+		    <select id="stage"  class="form-control" name="stage">
 		    	<option></option>
 		    	<c:forEach items="${stageList}" var="s">
 					<option value="${s.value}">${s.text}</option>
@@ -254,7 +271,7 @@ String owner = request.getParameter("owner");
 		  <div class="form-group" style="width: 400px;position: relative; left: 20px;">
 		    <label for="activity">市场活动源&nbsp;&nbsp;<a href="javascript:void(0);" id="openSearchModalBtn" style="text-decoration: none;"><span class="glyphicon glyphicon-search"></span></a></label>
 		    <input type="text" class="form-control" id="activityName" placeholder="点击上面搜索" readonly>
-			  <input type="hidden" id="activityId"/>
+			  <input type="hidden" id="activityId" name="activityId"/>
 		  </div>
 		</form>
 		

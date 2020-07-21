@@ -5,6 +5,12 @@
 
 <mapper namespace="com.luoyan.crm.workbench.dao.ClueDao">
 
+    <select id="getById" resultType="Clue">
+
+        select * from tbl_clue where id=#{clueId}
+
+    </select>
+
     <select id="detail" resultType="Clue">
 
         select

@@ -1,6 +1,7 @@
 package com.luoyan.crm.workbench.service;
 
 import com.luoyan.crm.workbench.domain.Clue;
+import com.luoyan.crm.workbench.domain.Tran;
 
 public interface ClueService {
 
@@ -12,4 +13,6 @@ public interface ClueService {
     boolean unbond(String id);
 
     boolean bund(String cid, String[] aids);
+
+    boolean convert(String clueId, Tran t, String createBy);
 }
