@@ -113,7 +113,7 @@ String owner = request.getParameter("owner");
 			var $xz = $("input[name=xz]:checked");
 			var id = $xz.val();
 
-			//取得选中市场活动的名字 （此处使用id来取值）
+			//取得选中市场活动的名字 （此处使用id来取值） 取的是标签中的内容，所以用html()
 			var name = $("#"+id).html();
 
 			/*alert(id);

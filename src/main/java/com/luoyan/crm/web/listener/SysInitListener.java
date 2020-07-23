@@ -8,9 +8,7 @@ import com.luoyan.crm.utils.ServiceFactory;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SysInitListener implements ServletContextListener{
 
@@ -43,6 +41,34 @@ public class SysInitListener implements ServletContextListener{
 
         }
         System.out.println("服务器缓存处理数据字典结束");
+
+        //---------------------------------------------------------------------------------------------------
+        //处理Stage2Possibility.properties文件
+        /*
+            处理步骤
+                1.解析这个文件，将文件中的键值对关系处理成为Java中的键值对关系（map）
+                2.pMap保存值之后，放在服务器缓存中
+         */
+
+        Map<String,String> pMap = new HashMap<String,String>();
+
+        ResourceBundle rb = ResourceBundle.getBundle("Stage2Possibility");//相当于已经转成了Java中的map
+
+        Enumeration<String> e = rb.getKeys();
+
+        while(e.hasMoreElements()){
+
+            //取阶段
+            String key = e.nextElement();
+            //取可能性
+            String value = rb.getString(key);
+
+            pMap.put(key,value);
+
+        }
+
+        //将pMap保存到服务器缓存中
+        application.setAttribute("pMap",pMap);
 
     }
 }
