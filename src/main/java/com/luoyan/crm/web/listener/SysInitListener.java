@@ -43,7 +43,7 @@ public class SysInitListener implements ServletContextListener{
         System.out.println("服务器缓存处理数据字典结束");
 
         //---------------------------------------------------------------------------------------------------
-        //处理Stage2Possibility.properties文件
+        //处理Stage2Possibility.properties文件（阶段stage和可能性possibility之间的关系）
         /*
             处理步骤
                 1.解析这个文件，将文件中的键值对关系处理成为Java中的键值对关系（map）
