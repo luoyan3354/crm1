@@ -11,6 +11,8 @@ import com.luoyan.crm.workbench.domain.Tran;
 import com.luoyan.crm.workbench.domain.TranHistory;
 import com.luoyan.crm.workbench.service.TranService;
 
+import java.util.List;
+
 public class TranServiceImpl implements TranService {
 
     private TranDao tranDao = SqlSessionUtil.getSqlSession().getMapper(TranDao.class);
@@ -85,5 +87,23 @@ public class TranServiceImpl implements TranService {
         }
 
         return flag;
+    }
+
+    @Override
+    public Tran detail(String id) {
+
+        Tran t = tranDao.detail(id);
+
+        //System.out.println("交易详细信息页service:"+t.getName());
+
+        return t;
+    }
+
+    @Override
+    public List<TranHistory> getHistoryListByTranId(String tranId) {
+
+        List<TranHistory> thList = tranHistoryDao.getHistoryListByTranId(tranId);
+
+        return thList;
     }
 }

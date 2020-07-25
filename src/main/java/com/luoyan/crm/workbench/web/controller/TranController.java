@@ -8,6 +8,7 @@ import com.luoyan.crm.utils.PrintJson;
 import com.luoyan.crm.utils.ServiceFactory;
 import com.luoyan.crm.utils.UUIDUtil;
 import com.luoyan.crm.workbench.domain.Tran;
+import com.luoyan.crm.workbench.domain.TranHistory;
 import com.luoyan.crm.workbench.service.CustomerService;
 import com.luoyan.crm.workbench.service.TranService;
 import com.luoyan.crm.workbench.service.impl.CustomerServiceImpl;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 
 public class TranController extends HttpServlet {
@@ -34,7 +36,67 @@ public class TranController extends HttpServlet {
             getCustomerName(request,response);
         }else if("/workbench/transaction/save.do".equals(path)){
             save(request,response);
+        }else if("/workbench/transaction/detail.do".equals(path)){
+            detail(request,response);
+        }else if("/workbench/transaction/getHistoryListByTranId.do".equals(path)){
+            getHistoryListByTranId(request,response);
         }
+
+    }
+
+    private void getHistoryListByTranId(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("根据交易id取得相应的历史列表");
+
+        String tranId = request.getParameter("tranId");
+
+        TranService ts = (TranService) ServiceFactory.getService(new TranServiceImpl());
+
+        List<TranHistory> thList = ts.getHistoryListByTranId(tranId);
+
+        //阶段和可能性之间的对应关系
+        Map<String,String> pMap = (Map<String, String>) this.getServletContext().getAttribute("pMap");
+
+        //将交易历史列表遍历
+        for(TranHistory th : thList){
+
+            //根据每条交易历史，取出每一个阶段
+            String stage = th.getStage();
+            String possibility = pMap.get(stage);
+            th.setPossibility(possibility);
+
+        }
+
+        PrintJson.printJsonObj(response,thList);
+
+    }
+
+    private void detail(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        System.out.println("跳转到详细信息页");
+
+        String id = request.getParameter("id");
+
+        TranService ts = (TranService) ServiceFactory.getService(new TranServiceImpl());
+
+        Tran t = ts.detail(id);
+
+        //System.out.println("交易详细信息页controller:"+t.getName());
+
+        /*
+        处理可能性
+            从t中取出stage
+            从application中取出阶段和可能性之间的对应关系 pMap
+            放入t中（t新增一个属性）
+         */
+        String stage = t.getStage();
+        Map<String,String> pMap = (Map<String, String>) this.getServletContext().getAttribute("pMap");
+        String possibility = pMap.get(stage);
+
+        t.setPossibility(possibility);
+
+        request.setAttribute("t",t);
+        request.getRequestDispatcher("/workbench/transaction/detail.jsp").forward(request,response);
 
     }
 

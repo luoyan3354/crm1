@@ -348,7 +348,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			<label for="create-contactsName" class="col-sm-2 control-label">联系人名称&nbsp;&nbsp;<a href="javascript:void(0);" data-toggle="modal" data-target="#findContacts"><span class="glyphicon glyphicon-search"></span></a></label>
 			<div class="col-sm-10" style="width: 300px;">
 				<input type="text" class="form-control" id="create-contactsName" value="马云">
-				<input type="hidden" name="contactsId" value="13e45839b7594921b2aa8fa17eaad3c6">
+				<input type="hidden" name="contactsId" value="4bc2491b352f40be913d7b917199b34f">
 			</div>
 		</div>
 		
