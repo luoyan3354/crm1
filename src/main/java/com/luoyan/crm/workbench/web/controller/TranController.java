@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,44 @@ public class TranController extends HttpServlet {
             detail(request,response);
         }else if("/workbench/transaction/getHistoryListByTranId.do".equals(path)){
             getHistoryListByTranId(request,response);
+        }else if("/workbench/transaction/changeStage.do".equals(path)){
+            changeStage(request,response);
         }
+
+    }
+
+    private void changeStage(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("执行改变阶段的操作");
+
+        String id = request.getParameter("id");
+        String stage = request.getParameter("stage");
+        String money = request.getParameter("money");
+        String expectedDate = request.getParameter("expectedDate");
+        String editBy = ((User)request.getSession().getAttribute("user")).getName();
+        String editTime = DateTimeUtil.getSysTime();
+
+        Tran t = new Tran();
+        t.setId(id);
+        t.setStage(stage);
+        t.setMoney(money);
+        t.setExpectedDate(expectedDate);
+        t.setEditBy(editBy);
+        t.setEditTime(editTime);
+
+        TranService ts = (TranService) ServiceFactory.getService(new TranServiceImpl());
+
+        boolean flag = ts.changeStage(t);
+
+        //处理可能性：在创建t之后，在塞入map之前。但没必要将possibility传到后台之后
+        Map<String,String> pMap = (Map<String, String>) this.getServletContext().getAttribute("pMap");
+        t.setPossibility(pMap.get(stage));
+
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("success",flag);
+        map.put("t",t);
+
+        PrintJson.printJsonObj(response,map);
 
     }
 

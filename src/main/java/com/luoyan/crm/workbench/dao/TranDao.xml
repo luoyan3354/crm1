@@ -5,6 +5,13 @@
 
 <mapper namespace="com.luoyan.crm.workbench.dao.TranDao">
 
+    <update id="changeStage">
+
+        update tbl_tran set stage=#{stage},editBy=#{editBy},editTime=#{editTime}
+        where id=#{id}
+
+    </update>
+
     <select id="detail" resultType="Tran">
 
         select

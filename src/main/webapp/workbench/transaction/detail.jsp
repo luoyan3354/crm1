@@ -169,8 +169,67 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		})
 
 	}
+
+	/*
+	方法：改变交易阶段
+	参数：
+		stage:需要改变的阶段
+		i：需要改变的阶段对应的下标
+	 */
+	function changeStage(stage,i) {
+
+		//alert(stage);
+		//alert(i);
+		$.ajax({
+			url:"workbench/transaction/changeStage.do",
+			data:{//前端传给后台的参数
+
+				"id" : "${t.id}",
+				"stage" : stage,
+				"money" : "${t.money}",   //生成交易历史用
+				"expectedDate" : "${t.expectedDate}"   //生成交易历史用
+
+			},
+			type:"post",
+			dataType:"json",
+			success:function (data) {
+
+				/*
+				data
+					{"success":true/false,"t":{交易}}
+				 */
+
+				if(data.success){
+
+					//(1)改变阶段成功后，需要在详细信息页上局部刷新 ：阶段、可能性、联系人、修改时间
+					$("#stage").html(data.t.stage);
+					$("#possibility").html(data.t.possibility);
+					$("#editBy").html(data.t.editBy);
+					$("#editTime").html(data.t.editTime);
+
+					//(2)刷新历史交易记录
+					showHistoryList();
+
+					//(3)将所有的阶段图标重新判断，重新赋予样式及颜色
+					changeIcon(stage,i);
+
+				}else{
+
+					alert("改变阶段失败");
+
+				}
+
+			}
+		})
+
+	}
 	
-	
+	function changeIcon(stage,i) {
+
+		//当前阶段
+		var currentStage = stage;
+
+	}
 	
 </script>
 
@@ -204,6 +263,161 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			String currentStage = t.getStage();
 			//准备当前阶段的可能性
 			String currentPossibility = pMap.get(currentStage);
+
+			//判断当前阶段
+			//如果当前阶段的可能性为0 前7个一定是黑圈，后两个一个是红叉，一个是黑叉
+			if("0".equals(currentPossibility)){
+
+				for(int i=0;i<dvList.size();i++){
+
+					//取得每一个遍历出来的阶段，根据每一个遍历出来的阶段取其可能性
+					DicValue dv = dvList.get(i);
+					String listStage = dv.getValue();
+					String listPossibility = pMap.get(listStage);
+
+					//如果遍历出来的阶段的可能性为0，说明是后两个
+					if("0".equals(listPossibility)){
+
+						//如果是当前阶段
+						if(listStage.equals(currentStage)){
+
+							//红叉------------------------------------------------------------------
+							%>
+
+							<span id="<%=i%>" onclick="changeStage('<%=listStage%>','<%=i%>')"
+								  class="glyphicon glyphicon-remove mystage"
+								  data-toggle="popover" data-placement="bottom"
+								  data-content="<%=dv.getText()%>" style="color: #FF0000;"></span>
+							-----------
+
+							<%
+
+						//如果不是当前的阶段
+						}else{
+
+							//黑叉------------------------------------------------------------------
+							%>
+
+							<span id="<%=i%>" onclick="changeStage('<%=listStage%>','<%=i%>')"
+								  class="glyphicon glyphicon-remove mystage"
+								  data-toggle="popover" data-placement="bottom"
+								  data-content="<%=dv.getText()%>" style="color: #000000;"></span>
+							-----------
+
+							<%
+
+						}
+
+					//如果遍历出来的阶段的可能性不为0，说明是前7个，一定是黑圈
+					}else{
+
+						//黑圈---------------------------------------------------------------------
+						%>
+
+						<span id="<%=i%>" onclick="changeStage('<%=listStage%>','<%=i%>')"
+							  class="glyphicon glyphicon-record mystage"
+							  data-toggle="popover" data-placement="bottom"
+							  data-content="<%=dv.getText()%>" style="color: #000000;"></span>
+						-----------
+
+						<%
+
+					}
+
+
+				}
+
+			//如果当前阶段的可能性不为0，前7个有可能是绿圈、绿色标记、黑圈，后两个一定是黑叉
+			}else{
+
+				//准备当前阶段的下标
+				int index = 0;
+				for(int i=0;i<dvList.size();i++){
+
+					DicValue dv = dvList.get(i);
+					String stage = dv.getValue();
+					//如果遍历出来的阶段是当前阶段
+					if(stage.equals(currentStage)){
+						index = i;
+						break;
+					}
+
+				}
+
+				for(int i=0;i<dvList.size();i++){
+
+					//取得每一个遍历出来的阶段，根据每一个遍历出来的阶段取其可能性
+					DicValue dv = dvList.get(i);
+					String listStage = dv.getValue();
+					String listPossibility = pMap.get(listStage);
+
+					//如果遍历出来的阶段的可能性为0，说明是后两个阶段
+					if("0".equals(listPossibility)){
+
+						//黑叉-----------------------------------------------------------------
+						%>
+
+						<span id="<%=i%>" onclick="changeStage('<%=listStage%>','<%=i%>')"
+							  class="glyphicon glyphicon-remove mystage"
+							  data-toggle="popover" data-placement="bottom"
+							  data-content="<%=dv.getText()%>" style="color: #000000;"></span>
+						-----------
+
+						<%
+
+					//如果遍历出来的阶段的可能性不为0，说明是前7个阶段 绿圈、绿色标记、黑圈
+					}else{
+
+						//如果是当前阶段
+						if(i==index){
+
+							//绿色标记--------------------------------------------------------------
+							%>
+
+							<span id="<%=i%>" onclick="changeStage('<%=listStage%>','<%=i%>')"
+								  class="glyphicon glyphicon-map-marker mystage"
+								  data-toggle="popover" data-placement="bottom"
+								  data-content="<%=dv.getText()%>" style="color: #90F790;"></span>
+							-----------
+
+							<%
+
+						//如果小于当前阶段
+						}else if(i<index){
+
+							//绿√------------------------------------------------------------------
+							%>
+
+							<span id="<%=i%>" onclick="changeStage('<%=listStage%>','<%=i%>')"
+								  class="glyphicon glyphicon-ok-circle mystage"
+								  data-toggle="popover" data-placement="bottom"
+								  data-content="<%=dv.getText()%>" style="color: #90F790;"></span>
+							-----------
+
+							<%
+
+						//如果大于当前阶段
+						}else{
+
+							//黑圈----------------------------------------------------------------
+							%>
+
+							<span id="<%=i%>" onclick="changeStage('<%=listStage%>','<%=i%>')"
+								  class="glyphicon glyphicon-record mystage"
+								  data-toggle="popover" data-placement="bottom"
+								  data-content="<%=dv.getText()%>" style="color: #000000;"></span>
+							-----------
+
+							<%
+
+						}
+
+					}
+
+				}
+
+
+			}
 
 		%>
 
@@ -251,7 +465,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			<div style="width: 300px; color: gray;">客户名称</div>
 			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${t.customerId}</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">阶段</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${t.stage}</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b id="stage">${t.stage}</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
@@ -259,7 +473,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 			<div style="width: 300px; color: gray;">类型</div>
 			<div style="width: 300px;position: relative; left: 200px; top: -20px;"><b>${t.type}</b></div>
 			<div style="width: 300px;position: relative; left: 450px; top: -40px; color: gray;">可能性</div>
-			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b>${t.possibility}</b></div>
+			<div style="width: 300px;position: relative; left: 650px; top: -60px;"><b id="possibility">${t.possibility}</b></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px;"></div>
 			<div style="height: 1px; width: 400px; background: #D5D5D5; position: relative; top: -60px; left: 450px;"></div>
 		</div>
@@ -283,7 +497,7 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 70px;">
 			<div style="width: 300px; color: gray;">修改者</div>
-			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b>${editBy}&nbsp;&nbsp;</b><small style="font-size: 10px; color: gray;">${editTime}</small></div>
+			<div style="width: 500px;position: relative; left: 200px; top: -20px;"><b id="editBy">${editBy}&nbsp;&nbsp;</b><small id="editTime" style="font-size: 10px; color: gray;">${editTime}</small></div>
 			<div style="height: 1px; width: 550px; background: #D5D5D5; position: relative; top: -20px;"></div>
 		</div>
 		<div style="position: relative; left: 40px; height: 30px; top: 80px;">
