@@ -43,7 +43,29 @@ public class TranController extends HttpServlet {
             getHistoryListByTranId(request,response);
         }else if("/workbench/transaction/changeStage.do".equals(path)){
             changeStage(request,response);
+        }else if("/workbench/transaction/getCharts.do".equals(path)){
+            getCharts(request,response);
         }
+
+    }
+
+    private void getCharts(HttpServletRequest request, HttpServletResponse response) {
+
+        System.out.println("取得交易阶段数量统计图表的数据");
+
+        TranService ts = (TranService) ServiceFactory.getService(new TranServiceImpl());
+
+        /*
+        业务层为我们返回
+            total
+            dataList
+
+            通过map打包以上两项进行返回
+         */
+
+        Map<String,Object> map = ts.getCharts();
+
+        PrintJson.printJsonObj(response,map);
 
     }
 

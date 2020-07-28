@@ -11,7 +11,9 @@ import com.luoyan.crm.workbench.domain.Tran;
 import com.luoyan.crm.workbench.domain.TranHistory;
 import com.luoyan.crm.workbench.service.TranService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TranServiceImpl implements TranService {
 
@@ -134,5 +136,23 @@ public class TranServiceImpl implements TranService {
         }
 
         return flag;
+    }
+
+    @Override
+    public Map<String, Object> getCharts() {
+
+        //取得total
+        int total = tranDao.getTotal();
+
+        //取得dataList（返回一个map，里面是name键值对、value键值对。=>里面有多条map，就返回成多个map，成了数组）
+        List<Map<String,Object>> dataList = tranDao.getCharts();
+
+        //打包放入map
+        Map<String,Object> map = new HashMap<String, Object>();
+        map.put("total",total);
+        map.put("dataList",dataList);
+
+        //返回map
+        return map;
     }
 }

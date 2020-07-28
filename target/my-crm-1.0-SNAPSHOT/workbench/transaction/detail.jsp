@@ -224,10 +224,126 @@ String basePath = request.getScheme() + "://" + request.getServerName() + ":" + 
 
 	}
 	
-	function changeIcon(stage,i) {
+	function changeIcon(stage,index1) {
 
 		//当前阶段
 		var currentStage = stage;
+		//当前阶段可能性
+		var currentPossibility = $("#possibility").html();
+		//当前阶段的下标
+		var index = index1;
+		//前面正常阶段和后面丢失阶段的分界点下标
+		var point = "<%=point%>";//Java转化为js（两要素：1.加""	2.只能是八大基本数据类型+String类型）
+
+		/*
+		alert("当前阶段"+currentStage);
+		alert("当前阶段可能性"+currentPossibility);
+		alert("当前阶段的下标"+index);
+		alert("前面正常阶段和后面丢失阶段的分界点下标"+point);
+		*/
+
+		//如果当前阶段的可能性为0 前7个一定是黑圈，后两个一个是红叉，一个是黑叉
+		if(currentPossibility=="0"){
+
+			//遍历前7个
+			for(var i=0;i<point;i++){
+
+				//黑圈-------------------------------------------------------------------------------------------
+				//移除掉原有的样式
+				$("#"+i).removeClass();
+				//添加新样式
+				$("#"+i).addClass("glyphicon glyphicon-record mystage");
+				//为新样式赋予颜色
+				$("#"+i).css("color","#000000");
+
+			}
+
+			//遍历后两个
+			for(var i=point;i<<%=dvList.size()%>;i++){
+
+				//如果是当前阶段
+				if(i==index){
+
+					//红叉-----------------------------------------------------------------------------------------
+					//移除掉原有的样式
+					$("#"+i).removeClass();
+					//添加新样式
+					$("#"+i).addClass("glyphicon glyphicon-remove mystage");
+					//为新样式赋予颜色
+					$("#"+i).css("color","#FF0000");
+
+				//如果不是当前阶段
+				}else{
+
+					//黑叉---------------------------------------------------------------------------------------
+					//移除掉原有的样式
+					$("#"+i).removeClass();
+					//添加新样式
+					$("#"+i).addClass("glyphicon glyphicon-remove mystage");
+					//为新样式赋予颜色
+					$("#"+i).css("color","#000000");
+
+				}
+
+			}
+
+		//如果当前阶段的可能性不为0 前7个绿√、绿色标记、黑圈，后两个一定是黑叉
+		}else{
+
+			//遍历前7个  绿√、绿色标记、黑圈
+			for(var i=0;i<point;i++){
+
+				//如果是当前阶段
+				if(i==index){
+
+					//绿色标记----------------------------------------------------------------------------------
+					//移除掉原有的样式
+					$("#"+i).removeClass();
+					//添加新样式
+					$("#"+i).addClass("glyphicon glyphicon-map-marker mystage");
+					//为新样式赋予颜色
+					$("#"+i).css("color","#90F790");
+
+				//如果小于当前阶段
+				}else if(i<index){
+
+					//绿√---------------------------------------------------------------------------------------
+					//移除掉原有的样式
+					$("#"+i).removeClass();
+					//添加新样式
+					$("#"+i).addClass("glyphicon glyphicon-ok-circle mystage");
+					//为新样式赋予颜色
+					$("#"+i).css("color","#90F790");
+
+				//如果大于当前阶段
+				}else{
+
+					//黑圈--------------------------------------------------------------------------------------
+					//移除掉原有的样式
+					$("#"+i).removeClass();
+					//添加新样式
+					$("#"+i).addClass("glyphicon glyphicon-record mystage");
+					//为新样式赋予颜色
+					$("#"+i).css("color","#000000");
+
+				}
+
+			}
+
+			//遍历后两个
+			for(var i=point;i<<%=dvList.size()%>;i++){
+
+				//黑叉-------------------------------------------------------------------------------------------
+				//移除掉原有的样式
+				$("#"+i).removeClass();
+				//添加新样式
+				$("#"+i).addClass("glyphicon glyphicon-remove mystage");
+				//为新样式赋予颜色
+				$("#"+i).css("color","#000000");
+
+			}
+
+		}
 
 	}
 	
